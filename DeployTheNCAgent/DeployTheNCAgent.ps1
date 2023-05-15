@@ -13,14 +13,25 @@
 [CmdletBinding()]
 Param(
     [Parameter(Mandatory = $true)]$serverHost,
+    [Parameter(Mandatory = $true)]$APIUser,
     [Parameter(Mandatory = $true)]$JWT,
     [Parameter(Mandatory = $true)]$SpecifiedCustomerID
 )
 
-
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
  
+##Loading Variables for script
+$SecurePass = ConvertTo-SecureString $JWT -AsPlainText -Force
+$PSCred = New-Object PSCredential ($APIUser, $SecurePass)
+
+function RefreshToken($customer) {
+
+    ## NC RegToken Refresh URI
+    $RefTokenURI = "https://$serverHost/dms/FileDownload?customerID=$($customer)&softwareID=101"
+    $request = Invoke-WebRequest -Uri $RefTokenURI -UseBasicParsing -Credential $PSCred
+    $request | out-null
+}
+
 # Generate a pseudo-unique namespace to use with the New-WebServiceProxy and
 # associated types.
 $NWSNameSpace = "NAble" + ([guid]::NewGuid()).ToString().Substring(25)
@@ -30,6 +41,8 @@ $KeyPairType = "$NWSNameSpace.EiKeyValue"
 $bindingURL = "https://" + $serverHost + "/dms2/services2/ServerEI2?wsdl"
 $nws = New-Webserviceproxy $bindingURL -Namespace ($NWSNameSpace)
  
+RefreshToken -customer $SpecifiedCustomerID
+
 # Set up and execute the query
 $KeyPair = New-Object -TypeName $KeyPairType
 $KeyPair.Key = 'listSOs'
