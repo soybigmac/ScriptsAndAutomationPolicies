@@ -28,7 +28,7 @@ function RefreshToken($customer) {
 
     ## NC RegToken Refresh URI
     $RefTokenURI = "https://$serverHost/dms/FileDownload?customerID=$($customer)&softwareID=101"
-    $request = Invoke-WebRequest -Uri $RefTokenURI -UseBasicParsing -Credential $PSCred
+    $request = Invoke-WebRequest -Uri $RefTokenURI -UseBasicParsing -Credential $PSCred -Method 'HEAD'
     $request | out-null
 }
 
