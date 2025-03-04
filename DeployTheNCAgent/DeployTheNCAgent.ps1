@@ -24,10 +24,10 @@ Param(
 $SecurePass = ConvertTo-SecureString $JWT -AsPlainText -Force
 $PSCred = New-Object PSCredential ($APIUser, $SecurePass)
 
-function RefreshToken($customer) {
+function RefreshToken($SpecifiedCustomerID) {
 
     ## NC RegToken Refresh URI
-    $RefTokenURI = "https://$serverHost/dms/FileDownload?customerID=$($customer)&softwareID=101"
+    $RefTokenURI = "https://$serverHost/dms/FileDownload?customerID=$($SpecifiedCustomerID)&softwareID=101"
     $request = Invoke-WebRequest -Uri $RefTokenURI -UseBasicParsing -Credential $PSCred -Method 'HEAD'
     $request | out-null
 }
